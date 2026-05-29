@@ -79,25 +79,74 @@
               type="button"
               class="theme-button"
               data-theme-mode="auto"
-              data-i18n="themeAuto"
+              aria-label="Auto"
+              title="Auto"
             >
-              Auto
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9"></circle>
+                <path
+                  d="M12 3v18a9 9 0 0 0 0-18z"
+                  fill="currentColor"
+                  stroke="none"
+                ></path>
+              </svg>
             </button>
             <button
               type="button"
               class="theme-button"
               data-theme-mode="light"
-              data-i18n="themeLight"
+              aria-label="Light"
+              title="Light"
             >
-              Light
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
             </button>
             <button
               type="button"
               class="theme-button"
               data-theme-mode="dark"
-              data-i18n="themeDark"
+              aria-label="Dark"
+              title="Dark"
             >
-              Dark
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
             </button>
           </div>
         </div>
@@ -582,6 +631,17 @@
         if (themeToggle && dict.themeLabel) {
           themeToggle.setAttribute("aria-label", dict.themeLabel);
         }
+        themeButtons.forEach((btn) => {
+          const label = {
+            auto: dict.themeAuto,
+            light: dict.themeLight,
+            dark: dict.themeDark
+          }[btn.dataset.themeMode];
+          if (label) {
+            btn.setAttribute("aria-label", label);
+            btn.setAttribute("title", label);
+          }
+        });
         buttons.forEach((btn) => {
           btn.classList.toggle("active", btn.dataset.lang === lang);
         });
