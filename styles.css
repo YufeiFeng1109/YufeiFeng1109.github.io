@@ -9,10 +9,24 @@
   --border: #dbeee2;
   --shadow: 0 12px 32px rgba(28, 33, 45, 0.08);
   --header-bg: rgba(255, 255, 255, 0.92);
-  --glass-bg: rgba(255, 255, 255, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.7);
-  --glass-blur: blur(14px) saturate(160%);
+  --glass-bg: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.62),
+    rgba(255, 255, 255, 0.28)
+  );
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-blur: blur(18px) saturate(190%) brightness(1.06);
+  --glass-shadow: 0 10px 30px rgba(28, 33, 45, 0.14),
+    inset 0 2px 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 1.5px rgba(255, 255, 255, 0.4),
+    inset 2px 0 1.5px rgba(255, 255, 255, 0.55),
+    inset -2px 0 1.5px rgba(255, 255, 255, 0.55);
   --glow: rgba(106, 191, 139, 0.9);
+  --glass-img-tint: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0.58)
+  );
 }
 
 :root[data-theme="dark"] {
@@ -26,9 +40,24 @@
   --border: #25332b;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   --header-bg: rgba(14, 21, 18, 0.92);
-  --glass-bg: rgba(21, 32, 27, 0.42);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: linear-gradient(
+    135deg,
+    rgba(46, 62, 54, 0.6),
+    rgba(21, 32, 27, 0.32)
+  );
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-blur: blur(18px) saturate(190%) brightness(1.14);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.55),
+    inset 0 2px 1.5px rgba(255, 255, 255, 0.34),
+    inset 0 -2px 1.5px rgba(255, 255, 255, 0.12),
+    inset 2px 0 1.5px rgba(255, 255, 255, 0.18),
+    inset -2px 0 1.5px rgba(255, 255, 255, 0.18);
   --glow: rgba(116, 199, 148, 1);
+  --glass-img-tint: linear-gradient(
+    160deg,
+    rgba(16, 24, 20, 0.82),
+    rgba(16, 24, 20, 0.55)
+  );
 }
 
 *,
@@ -70,7 +99,8 @@ ul {
   top: 0;
   z-index: 10;
   background: var(--header-bg);
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
   border-bottom: 1px solid var(--border);
 }
 
@@ -122,7 +152,7 @@ ul {
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -141,7 +171,7 @@ ul {
   display: inline-flex;
   gap: 0.2rem;
   padding: 0.2rem;
-  border: 1px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -172,7 +202,7 @@ ul {
   display: inline-flex;
   gap: 0.2rem;
   padding: 0.2rem;
-  border: 1px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -230,6 +260,7 @@ body,
 .highlight-card {
   position: relative;
   isolation: isolate;
+  box-shadow: var(--glass-shadow);
 }
 
 .lang-toggle::after,
@@ -241,7 +272,7 @@ body,
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1px;
+  padding: 3px;
   background: radial-gradient(
     180px circle at var(--mx, 50%) var(--my, 50%),
     var(--glow),
@@ -291,8 +322,8 @@ body,
   backdrop-filter: var(--glass-blur);
   border-radius: 20px;
   padding: 1.6rem;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border: 2px solid var(--glass-border);
 }
 
 .button-row {
@@ -376,9 +407,50 @@ body,
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow);
+  border: 2px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   margin-top: 1.4rem;
+}
+
+/* Per-venue conference background images, layered behind the glass tint */
+.publication[data-venue="pam26"],
+.publication[data-venue="sigmetrics26"],
+.publication[data-venue="imc25"],
+.publication[data-venue="conext-sa25"],
+.publication[data-venue="conext25"],
+.publication[data-venue="mobihoc25"],
+.publication[data-venue="mmnets23"] {
+  background-image: var(--glass-img-tint), var(--pub-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 200px;
+}
+
+.publication[data-venue="sigmetrics26"] {
+  --pub-bg: url("assets/bg/sigmetrics26.jpg");
+}
+.publication[data-venue="imc25"] {
+  --pub-bg: url("assets/bg/imc25.jpg");
+}
+.publication[data-venue="conext-sa25"] {
+  --pub-bg: url("assets/bg/conext25.jpg");
+  background-position: center bottom;
+}
+.publication[data-venue="conext25"] {
+  --pub-bg: url("assets/bg/conext25.jpg");
+  background-position: center bottom;
+}
+.publication[data-venue="mobihoc25"] {
+  --pub-bg: url("assets/bg/mobihoc25.jpg");
+  background-position: center top;
+}
+.publication[data-venue="mmnets23"] {
+  --pub-bg: url("assets/bg/mmnets23.jpg");
+  background-position: center bottom;
+}
+.publication[data-venue="pam26"] {
+  --pub-bg: url("assets/bg/pam26.jpg");
 }
 
 .pub-meta {
