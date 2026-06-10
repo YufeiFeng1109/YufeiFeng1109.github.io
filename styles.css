@@ -11,11 +11,12 @@
   --header-bg: rgba(255, 255, 255, 0.92);
   --glass-bg: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.62),
-    rgba(255, 255, 255, 0.28)
+    rgba(255, 255, 255, 0.66),
+    rgba(255, 255, 255, 0.34)
   );
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-blur: blur(18px) saturate(190%) brightness(1.06);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-blur: blur(26px) saturate(185%) brightness(1.08);
+  --glass-rim-filter: blur(5px) saturate(230%) brightness(1.55) contrast(1.05);
   --glass-shadow: 0 10px 30px rgba(28, 33, 45, 0.14),
     inset 0 2px 1.5px rgba(255, 255, 255, 0.95),
     inset 0 -2px 1.5px rgba(255, 255, 255, 0.4),
@@ -46,7 +47,8 @@
     rgba(21, 32, 27, 0.32)
   );
   --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-blur: blur(18px) saturate(190%) brightness(1.14);
+  --glass-blur: blur(26px) saturate(185%) brightness(1.16);
+  --glass-rim-filter: blur(5px) saturate(230%) brightness(1.9) contrast(1.05);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.55),
     inset 0 2px 1.5px rgba(255, 255, 255, 0.34),
     inset 0 -2px 1.5px rgba(255, 255, 255, 0.12),
@@ -263,6 +265,29 @@ body,
   box-shadow: var(--glass-shadow);
 }
 
+/* Refractive rim: a thin ring along the glass edge that re-samples whatever
+   sits behind it (page background and the card's own image) and intensifies
+   it, so the edge color tracks the true local backdrop like real glass. */
+.lang-toggle::before,
+.theme-toggle::before,
+.site-nav a::before,
+.publication::before,
+.highlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2.5px;
+  -webkit-backdrop-filter: var(--glass-rim-filter);
+  backdrop-filter: var(--glass-rim-filter);
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .lang-toggle::after,
 .theme-toggle::after,
 .site-nav a::after,
@@ -320,7 +345,7 @@ body,
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
-  border-radius: 20px;
+  border-radius: 26px;
   padding: 1.6rem;
   box-shadow: var(--glass-shadow);
   border: 2px solid var(--glass-border);
@@ -403,7 +428,7 @@ body,
 
 .publication {
   padding: 1.4rem;
-  border-radius: 16px;
+  border-radius: 24px;
   background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
