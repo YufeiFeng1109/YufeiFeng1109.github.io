@@ -68,6 +68,11 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Keep anchored sections clear of the sticky header when jumping via nav. */
+  scroll-padding-top: 96px;
+}
+
 body {
   margin: 0;
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -570,12 +575,131 @@ body,
   gap: 1rem;
 }
 
+/* Shrink-on-scroll: the sticky header shows in full at the very top of the
+   page, then collapses to a slim bar once the visitor scrolls down, so it
+   barely covers the content while reading. Toggled by the `is-compact` class
+   from a scroll listener in index.html. */
+.header-inner,
+.avatar,
+.subtitle,
+.identity h1 {
+  transition: padding 0.25s ease, width 0.25s ease, height 0.25s ease,
+    font-size 0.25s ease, margin 0.25s ease, max-height 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.subtitle {
+  max-height: 4rem;
+  overflow: hidden;
+}
+
+.site-header.is-compact .header-inner {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.site-header.is-compact .subtitle {
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Desktop: gently shrink the avatar when collapsed. Phones size their own
+   compact avatar inside the max-width media query below, so the two never
+   collide in the cascade. */
+@media (min-width: 721px) {
+  .site-header.is-compact .avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 720px) {
-  .site-nav {
-    gap: 0.8rem;
+  /* Compact sticky header on phones: keep it pinned to the top but let it
+     take far less vertical space so more content shows below. */
+  .header-inner {
+    padding: 0.55rem 0;
+    gap: 0.5rem 0.75rem;
   }
 
-  .header-inner {
-    padding: 1rem 0;
+  .identity {
+    gap: 0.7rem;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  .identity h1 {
+    font-size: 1.3rem;
+    line-height: 1.15;
+  }
+
+  .subtitle {
+    margin-top: 0.15rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .header-actions {
+    width: 100%;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .site-nav {
+    gap: 0.45rem;
+  }
+
+  .site-nav a {
+    padding: 0.28rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .lang-toggle,
+  .theme-toggle {
+    padding: 0.15rem;
+  }
+
+  .lang-button {
+    padding: 0.28rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .theme-button {
+    padding: 0.3rem;
+  }
+
+  .theme-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Collapsed on a phone: shrink the avatar and name, and tuck away the
+     language/theme toggles, leaving a slim bar with just the identity and
+     the section nav. */
+  .site-header.is-compact .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    font-size: 0.78rem;
+  }
+
+  .site-header.is-compact .identity {
+    gap: 0.55rem;
+  }
+
+  .site-header.is-compact .identity h1 {
+    font-size: 1.05rem;
+  }
+
+  .site-header.is-compact .lang-toggle,
+  .site-header.is-compact .theme-toggle {
+    display: none;
   }
 }

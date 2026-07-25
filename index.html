@@ -704,6 +704,15 @@
       });
 
       setLanguage("en");
+
+      // Shrink-on-scroll: collapse the sticky header into a slim bar once the
+      // page is scrolled away from the very top, and restore it at the top.
+      const siteHeader = document.querySelector(".site-header");
+      function updateHeaderCompact() {
+        siteHeader.classList.toggle("is-compact", window.scrollY > 8);
+      }
+      window.addEventListener("scroll", updateHeaderCompact, { passive: true });
+      updateHeaderCompact();
     </script>
   </body>
 </html>
