@@ -185,6 +185,8 @@
       <section id="publications" class="section">
         <div class="container">
           <h2 data-i18n="pubTitle">Publications</h2>
+          <div class="pub-stack">
+          <div class="pub-deck">
           <div class="publication" data-venue="pam26">
             <div class="pub-meta" data-i18n="pubMeta1">2026 · PAM</div>
             <div class="pub-title" data-i18n="pubTitle1">
@@ -358,6 +360,8 @@
                 data-i18n="pubPdf"
               >PDF</a>
             </div>
+          </div>
+          </div>
           </div>
         </div>
       </section>
@@ -713,6 +717,228 @@
       }
       window.addEventListener("scroll", updateHeaderCompact, { passive: true });
       updateHeaderCompact();
+
+      // Bird's-eye deck: while the publication deck is pinned, scrolling moves
+      // a continuous "focus" position along the list. The card at the focus
+      // lies flat at the centre of the viewport; every other card stands up
+      // edge-on and sits a fixed gap away, so the list looks like a drawer of
+      // files seen from directly above.
+      const pubStack = document.querySelector(".pub-stack");
+      const pubDeck = document.querySelector(".pub-deck");
+      if (
+        pubStack &&
+        pubDeck &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        const deckCards = Array.from(pubDeck.querySelectorAll(".publication"));
+        // How far a card rotates up when it is not the focused one. 0deg reads
+        // as lying flat; this much reads as standing on edge.
+        const DECK_TILT = 70;
+        // How far back each step of the stack sits, for a little depth.
+        const DECK_DEPTH = 18;
+        // Keeps the outermost fold clear of the deck's edge.
+        const DECK_EDGE_INSET = 24;
+        // How far the nearest fold sits inside the flat card's own edge. Small
+        // and positive, so it shows as a thin lip rather than a wide step.
+        const DECK_FOLD_LIP = 10;
+        // Opacity lost per card of distance, and the floor it never drops
+        // below: the far cards stay legible as a dense bank of edges instead
+        // of fading out entirely.
+        const DECK_FADE = 0.11;
+        const DECK_FADE_FLOOR = 0.3;
+        // Share of the fold curve that stays linear. A purely exponential
+        // curve compresses so hard at the far end that the last few cards land
+        // on the same pixel and read as one; this keeps a minimum pitch
+        // between them.
+        const DECK_LINEAR_SHARE = 0.22;
+        let deckQueued = false;
+        let deckStep = 260;
+        let deckTop = 0;
+        // Fold geometry, recomputed only on resize. Deriving it per frame from
+        // the focused card would make the whole stack breathe as the focus
+        // moved between cards of different heights.
+        let fold = { spread: 200, decay: 3, norm: 1, visible: 6 };
+
+        // Distance of the nth fold from the focused card. Exponential, so the
+        // spacing between consecutive folds shrinks the further out they are,
+        // and normalised so the outermost card lands on the deck's edge. Every
+        // card gets its own position, so none of them stack up invisibly on
+        // top of one another.
+        function foldAt(dist) {
+          const d = Math.min(dist, fold.visible);
+          const curved = (1 - Math.exp(-d / fold.decay)) / fold.norm;
+          return (
+            fold.spread *
+            ((1 - DECK_LINEAR_SHARE) * curved +
+              (DECK_LINEAR_SHARE * d) / fold.visible)
+          );
+        }
+
+        // Pick the decay that puts the first fold exactly at `ratio` of the
+        // spread. The ratio falls monotonically from 1 towards 1/visible as
+        // the decay grows, so a bisection converges quickly.
+        function solveDecay(ratio, visible) {
+          let lo = 0.05;
+          let hi = 50;
+          for (let i = 0; i < 50; i++) {
+            const mid = (lo + hi) / 2;
+            const at =
+              (1 - Math.exp(-1 / mid)) / (1 - Math.exp(-visible / mid));
+            if (at > ratio) {
+              lo = mid;
+            } else {
+              hi = mid;
+            }
+          }
+          return (lo + hi) / 2;
+        }
+
+        function rootVar(name, fallback) {
+          const v = parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(name)
+          );
+          return Number.isNaN(v) ? fallback : v;
+        }
+
+        // Layout geometry only: offsetTop ignores both the sticky offset and
+        // the transforms this code applies, so re-measuring never feeds the
+        // previous frame's rotation back into the next one.
+        function docTop(el) {
+          let y = 0;
+          for (let n = el; n; n = n.offsetParent) {
+            y += n.offsetTop;
+          }
+          return y;
+        }
+
+        function measureDeck() {
+          document.documentElement.style.setProperty(
+            "--deck-count",
+            deckCards.length
+          );
+          deckStep = rootVar("--deck-step", 260);
+          // The deck is centred in the viewport, so it pins that many pixels
+          // before its container reaches the top of the screen.
+          const stickyTop = parseFloat(getComputedStyle(pubDeck).top) || 0;
+          deckTop = docTop(pubStack) - stickyTop;
+
+          const deckHeight = pubDeck.offsetHeight;
+          const tallest = deckCards.reduce(
+            (m, c) => Math.max(m, c.offsetHeight),
+            0
+          );
+          const spread = Math.max(deckHeight / 2 - DECK_EDGE_INSET, 80);
+          // The nearest fold sits just past the flat card's edge, so it reads
+          // as a thin lip. Any closer and it disappears behind the flat card.
+          const first = Math.min(
+            Math.max(tallest / 2 - DECK_FOLD_LIP, 40),
+            spread * 0.9
+          );
+          // Every other card is a distinct fold, so the curve has to reach the
+          // deck edge at the far end of the list rather than at some earlier
+          // cut-off.
+          const visible = Math.max(deckCards.length - 1, 1);
+          // Solve the curved part for what is left after the linear share, so
+          // the blend still puts the first fold exactly on `first`.
+          const curvedTarget =
+            (first / spread - DECK_LINEAR_SHARE / visible) /
+            (1 - DECK_LINEAR_SHARE);
+          const decay = solveDecay(
+            Math.min(Math.max(curvedTarget, 0.02), 0.98),
+            visible
+          );
+          fold = {
+            spread,
+            decay,
+            norm: 1 - Math.exp(-visible / decay),
+            visible
+          };
+        }
+
+        function updateDeck() {
+          deckQueued = false;
+          const last = deckCards.length - 1;
+          const raw = (window.scrollY - deckTop) / deckStep;
+          const focus = Math.min(Math.max(raw, 0), last);
+
+          // Near the start of the list there are few cards to stack above the
+          // focused one, and near the end few below, so centring the focused
+          // card would leave a large void on the short side. Centre the stack
+          // by how far it actually reaches instead. In the middle of the list
+          // both sides reach the same distance and the focused card ends up
+          // dead centre.
+          const focusedHeight = deckCards[Math.round(focus)].offsetHeight;
+          const half = focusedHeight / 2;
+          const aboveReach = Math.max(foldAt(focus), half);
+          const belowReach = Math.max(foldAt(last - focus), half);
+          // Cap the shift so it can never push the focused card past the edge
+          // of the deck, which clips it. Short viewports and tall cards (the
+          // author lists wrap a lot on phones) would otherwise cut the top off
+          // the one card that has to stay readable.
+          const anchorLimit = Math.max(
+            0,
+            (pubDeck.offsetHeight - focusedHeight) / 2
+          );
+          const anchor = Math.min(
+            Math.max((aboveReach - belowReach) / 2, -anchorLimit),
+            anchorLimit
+          );
+
+          deckCards.forEach((card, i) => {
+            // Signed distance from the focused card, in cards.
+            const k = i - focus;
+            const dist = Math.abs(k);
+            // Ramps 0 -> 1 over the first card of separation, so only the card
+            // at the centre is ever fully flat.
+            const tilt = Math.min(dist, 1);
+            const offset = Math.sign(k) * foldAt(dist);
+            const scale = 1 - 0.06 * tilt;
+            const opacity = Math.max(DECK_FADE_FLOOR, 1 - dist * DECK_FADE);
+
+            // Negative rotation brings the card's top edge toward the viewer
+            // and drops its bottom edge away, so you look down onto the face
+            // of each standing card rather than at its underside.
+            // translateZ before rotateX so the depth is measured in the deck's
+            // space, not along the card's own tilted axis.
+            card.style.transform =
+              "translateY(calc(-50% + " +
+              (offset + anchor).toFixed(1) +
+              "px)) translateZ(" +
+              (-Math.min(dist, fold.visible) * DECK_DEPTH).toFixed(1) +
+              "px) rotateX(" +
+              (-DECK_TILT * tilt).toFixed(2) +
+              "deg) scale(" +
+              scale.toFixed(3) +
+              ")";
+            card.style.opacity = opacity.toFixed(3);
+            card.style.zIndex = String(1000 - Math.round(dist * 10));
+            // Only the card in focus should take clicks; the rest are edge-on
+            // and sit underneath it.
+            card.style.pointerEvents = dist < 0.6 ? "auto" : "none";
+          });
+        }
+
+        function queueDeck() {
+          if (!deckQueued) {
+            deckQueued = true;
+            requestAnimationFrame(updateDeck);
+          }
+        }
+
+        window.addEventListener("scroll", queueDeck, { passive: true });
+        window.addEventListener("resize", () => {
+          measureDeck();
+          queueDeck();
+        });
+        // Conference background images change card heights as they decode.
+        window.addEventListener("load", () => {
+          measureDeck();
+          updateDeck();
+        });
+
+        measureDeck();
+        updateDeck();
+      }
     </script>
   </body>
 </html>
