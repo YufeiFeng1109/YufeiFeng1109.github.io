@@ -71,22 +71,6 @@
 html {
   /* Keep anchored sections clear of the sticky header when jumping via nav. */
   scroll-padding-top: 96px;
-  /* Publication deck: how far you scroll to advance one card, and how far
-     apart the standing cards sit on screen. */
-  --deck-step: 260px;
-  /* Height of the pinned deck, and how the leftover viewport is split above
-     and below it. Card spacing is derived from this height by the scroll
-     handler rather than being a fixed pitch, so a shorter deck also means a
-     denser stack. Most of the leftover goes above, where the sticky header
-     already covers it, which keeps the band below the deck small. */
-  --deck-view: 75vh;
-  --deck-bias: 0.68;
-}
-
-@supports (height: 100svh) {
-  html {
-    --deck-view: 75svh;
-  }
 }
 
 body {
@@ -499,97 +483,6 @@ body,
   --pub-bg: url("assets/bg/pam26.jpg");
 }
 
-/* ---- Bird's-eye deck: the publication list becomes a deck pinned to the
-   middle of the viewport. Whichever card is at the centre lies flat and
-   readable; every other card stands up edge-on, so the list reads like
-   looking down into a drawer of files. The scroll handler in index.html
-   places each card by its distance from the focused one. ---- */
-/* The deck carries its own vertical breathing room, so the section around it
-   does not need to add much of its own. */
-#publications {
-  padding-top: 3rem;
-  padding-bottom: 0;
-}
-
-#publications h2 {
-  margin-bottom: 0.6rem;
-}
-
-#contact {
-  padding-top: 2.5rem;
-}
-
-.pub-stack {
-  position: relative;
-  /* The deck's top band is empty while the first card is in focus, so let the
-     heading sit over it rather than leaving that emptiness as a gap. Same at
-     the bottom: the section is pulled up into the deck's empty tail so the
-     next section follows closely. Both bands only ever contain cards once the
-     deck is pinned, by which point the heading has scrolled away. */
-  margin-top: -8vh;
-  margin-bottom: -10vh;
-  /* One scroll step per card, plus a viewport so the last card can still
-     reach the centre before the deck unpins. */
-  height: calc(
-    (var(--deck-count, 10) - 1) * var(--deck-step, 260px) + var(--deck-view)
-  );
-}
-
-.pub-deck {
-  position: sticky;
-  /* Sits a little below centre: the empty band ends up mostly above the deck,
-     where the header hides it, instead of below where it reads as a gap. */
-  top: calc((100vh - var(--deck-view)) * var(--deck-bias));
-  height: var(--deck-view);
-  /* One shared vanishing point directly overhead, so the standing cards read
-     as parallel sheets rather than ten unrelated rotations. Kept long: a
-     shorter perspective projects the cards above the centre far smaller than
-     the ones below it, which makes the stack look lopsided. */
-  perspective: 3200px;
-  perspective-origin: 50% 50%;
-  /* Cards at the far ends of the stack must not spill over the section below
-     while the deck is pinned. */
-  overflow: hidden;
-}
-
-.pub-deck .publication {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  margin-top: 0;
-  transform-origin: 50% 50%;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-}
-
-/* Small-viewport units keep the deck from resizing every time a mobile
-   browser shows or hides its toolbar. */
-@supports (height: 100svh) {
-  .pub-deck {
-    top: calc((100svh - var(--deck-view)) * var(--deck-bias));
-  }
-}
-
-/* No deck, no 3D: fall back to the plain stacked list. The scroll handler
-   bails out too, so no inline transforms are left behind. */
-@media (prefers-reduced-motion: reduce) {
-  .pub-stack,
-  .pub-deck {
-    height: auto;
-  }
-
-  .pub-deck {
-    position: static;
-    perspective: none;
-  }
-
-  .pub-deck .publication {
-    position: static;
-    margin-top: 1.4rem;
-  }
-}
-
 .pub-meta {
   color: var(--muted);
   font-weight: 600;
@@ -724,20 +617,6 @@ body,
 }
 
 @media (max-width: 720px) {
-  html {
-    /* Shorter step so the deck does not take forever to scroll through on a
-       phone. The deck itself needs a bigger share of the screen because the
-       cards are much taller here (author lists wrap). */
-    --deck-step: 200px;
-    --deck-view: 88vh;
-  }
-
-  @supports (height: 100svh) {
-    html {
-      --deck-view: 88svh;
-    }
-  }
-
   /* Compact sticky header on phones: keep it pinned to the top but let it
      take far less vertical space so more content shows below. */
   .header-inner {
