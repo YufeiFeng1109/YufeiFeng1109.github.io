@@ -443,6 +443,8 @@ body,
 }
 
 /* Per-venue conference background images, layered behind the glass tint */
+.publication[data-venue="imc26"],
+.publication[data-venue="leonet26"],
 .publication[data-venue="pam26"],
 .publication[data-venue="sigmetrics26"],
 .publication[data-venue="imc25"],
@@ -457,6 +459,12 @@ body,
   min-height: 200px;
 }
 
+.publication[data-venue="imc26"] {
+  --pub-bg: url("assets/bg/imc26.jpg");
+}
+.publication[data-venue="leonet26"] {
+  --pub-bg: url("assets/bg/leonet26.jpg");
+}
 .publication[data-venue="sigmetrics26"] {
   --pub-bg: url("assets/bg/sigmetrics26.jpg");
 }
