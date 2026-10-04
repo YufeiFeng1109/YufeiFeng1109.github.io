@@ -8,7 +8,7 @@
   --primary-dark: #4fa774;
   --border: #dbeee2;
   --shadow: 0 12px 32px rgba(28, 33, 45, 0.08);
-  --header-bg: rgba(255, 255, 255, 0.92);
+  --header-bg: rgba(255, 255, 255, 0.42);
   --glass-bg: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.66),
@@ -17,11 +17,37 @@
   --glass-border: rgba(255, 255, 255, 0.85);
   --glass-blur: blur(26px) saturate(185%) brightness(1.08);
   --glass-rim-filter: blur(5px) saturate(230%) brightness(1.55) contrast(1.05);
-  --glass-shadow: 0 10px 30px rgba(28, 33, 45, 0.14),
-    inset 0 2px 1.5px rgba(255, 255, 255, 0.95),
-    inset 0 -2px 1.5px rgba(255, 255, 255, 0.4),
-    inset 1px 0 1px rgba(255, 255, 255, 0.22),
-    inset -1px 0 1px rgba(255, 255, 255, 0.22);
+  /* Fine grain: a few percent of white speckle gives frosted glass a
+     material texture instead of a flat tint. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 -.46'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Soft specular bloom where light from the top-left hits the surface. */
+  --spec: radial-gradient(
+    130% 75% at 10% 0%,
+    rgba(255, 255, 255, 0.62),
+    rgba(255, 255, 255, 0) 58%
+  );
+  /* Fresnel-style edge: glass is brightest at grazing angles, i.e. its
+     edges. */
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 22px rgba(255, 255, 255, 0.28);
+  /* Static light along a card's rim: bright where it faces the light, dim
+     on the far side. */
+  --rim-light: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(255, 255, 255, 0.22) 28%,
+    rgba(255, 255, 255, 0.05) 55%,
+    rgba(255, 255, 255, 0.55)
+  );
+  --drop: 0 12px 32px -6px rgba(28, 33, 45, 0.16);
+  --drop-hover: 0 20px 44px -8px rgba(28, 33, 45, 0.24);
+  --drop-sm: 0 6px 18px -4px rgba(28, 33, 45, 0.14);
+  /* Liquid glass: thick enough that a floating capsule's own label stays
+     legible over whatever scrolls beneath it. */
+  --lg-tint: rgba(255, 255, 255, 0.6);
+  /* Strength of the light that blooms from the pointer over a card. */
+  --bloom-k: 1;
   --glow: rgba(106, 191, 139, 0.9);
   --glass-img-tint: linear-gradient(
     160deg,
@@ -40,7 +66,7 @@
   --primary-dark: #5cb37e;
   --border: #25332b;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-  --header-bg: rgba(14, 21, 18, 0.92);
+  --header-bg: rgba(16, 24, 20, 0.5);
   --glass-bg: linear-gradient(
     135deg,
     rgba(46, 62, 54, 0.6),
@@ -49,11 +75,28 @@
   --glass-border: rgba(255, 255, 255, 0.18);
   --glass-blur: blur(26px) saturate(185%) brightness(1.16);
   --glass-rim-filter: blur(5px) saturate(230%) brightness(1.9) contrast(1.05);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.55),
-    inset 0 2px 1.5px rgba(255, 255, 255, 0.34),
-    inset 0 -2px 1.5px rgba(255, 255, 255, 0.12),
-    inset 1px 0 1px rgba(255, 255, 255, 0.08),
-    inset -1px 0 1px rgba(255, 255, 255, 0.08);
+  /* White speckle shows far more on a dark surface, so much fainter. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .42 0 0 0 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --spec: radial-gradient(
+    130% 75% at 10% 0%,
+    rgba(255, 255, 255, 0.17),
+    rgba(255, 255, 255, 0) 58%
+  );
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 22px rgba(255, 255, 255, 0.07);
+  --rim-light: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.09) 28%,
+    rgba(255, 255, 255, 0.02) 55%,
+    rgba(255, 255, 255, 0.24)
+  );
+  --drop: 0 12px 32px -6px rgba(0, 0, 0, 0.55);
+  --drop-hover: 0 22px 48px -8px rgba(0, 0, 0, 0.7);
+  --drop-sm: 0 6px 18px -4px rgba(0, 0, 0, 0.5);
+  --lg-tint: rgba(36, 50, 42, 0.62);
+  --bloom-k: 0.85;
   --glow: rgba(116, 199, 148, 1);
   --glass-img-tint: linear-gradient(
     160deg,
@@ -101,29 +144,73 @@ ul {
   margin: 0 auto;
 }
 
+/* The header is only a sticky carrier for the slab below. A touch of the
+   page colour in the gap above the slab keeps the very top of the screen
+   calm as content scrolls under it, and the empty margins around the slab
+   let clicks through to the page. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--header-bg);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  border-bottom: 1px solid var(--border);
+  padding-top: 10px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 85%, transparent),
+    transparent 10px
+  );
+  pointer-events: none;
 }
 
+/* The slab: one large piece of frosted glass floating at the top, carrying
+   smaller pieces of clearer glass (name, nav, language, theme). */
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.2rem 0;
-  gap: 2rem;
+  padding: 0.7rem 0.8rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  background: var(--spec), var(--grain), var(--header-bg);
+  background-size: auto, 180px 180px;
+  background-repeat: no-repeat, repeat;
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: var(--drop), var(--edge-light);
+  pointer-events: auto;
+  position: relative;
+}
+
+/* A static rim of light along the slab's edge, as on the cards, so the
+   slab reads as one thick sheet even over a pale photo. */
+.header-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--rim-light);
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .identity {
   display: flex;
   align-items: center;
   gap: 1rem;
+  padding: 0.4rem 1.2rem 0.4rem 0.4rem;
+  border: 2px solid var(--glass-border);
+  border-radius: 24px;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+.identity h1 {
+  margin: 0;
 }
 
 .avatar {
@@ -145,26 +232,33 @@ ul {
   font-size: 0.95rem;
 }
 
+/* The three nav links share one capsule, as an iOS tab bar does. */
 .site-nav {
   display: flex;
-  gap: 1.2rem;
+  gap: 0.15rem;
   flex-wrap: wrap;
   font-weight: 500;
+  padding: 0.25rem;
+  border: 2px solid var(--glass-border);
+  border-radius: 999px;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 .site-nav a {
   color: var(--muted);
   padding: 0.4rem 0.9rem;
   border-radius: 999px;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 2px solid var(--glass-border);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .site-nav a:hover {
   color: var(--primary);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+:root[data-theme="dark"] .site-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .header-actions {
@@ -180,7 +274,6 @@ ul {
   padding: 0.2rem;
   border: 2px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
 }
@@ -211,7 +304,6 @@ ul {
   padding: 0.2rem;
   border: 2px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
 }
@@ -259,23 +351,43 @@ body,
     color 0.3s ease;
 }
 
+/* Cards also lift on hover. The pointer bloom vanishes instantly on leave
+   and spreads only on enter: its duration is set in the hover state. */
+.publication,
+.highlight-card {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease, --bloom 0s, --bloom-a 0s;
+}
+
 /* Mouse-following edge glow for the glass elements */
+.identity,
+.site-nav,
 .lang-toggle,
 .theme-toggle,
-.site-nav a,
 .publication,
 .highlight-card {
   position: relative;
   isolation: isolate;
-  box-shadow: var(--glass-shadow);
 }
 
-/* Refractive rim: a thin ring along the glass edge that re-samples whatever
-   sits behind it (page background and the card's own image) and intensifies
-   it, so the edge color tracks the true local backdrop like real glass. */
+/* The small pieces on the slab: clearer, polished glass (no grain) with a
+   specular bloom and a bright fresnel edge, so they read as separate
+   pieces lying on the frosted slab. */
+.identity,
+.site-nav,
+.lang-toggle,
+.theme-toggle {
+  background: var(--spec), var(--lg-tint);
+  background-repeat: no-repeat;
+  box-shadow: var(--drop-sm), var(--edge-light);
+}
+
+/* Rim: a thin ring along the glass edge. */
+.identity::before,
+.site-nav::before,
 .lang-toggle::before,
 .theme-toggle::before,
-.site-nav a::before,
 .publication::before,
 .highlight-card::before {
   content: "";
@@ -283,8 +395,6 @@ body,
   inset: 0;
   border-radius: inherit;
   padding: 2.5px;
-  -webkit-backdrop-filter: var(--glass-rim-filter);
-  backdrop-filter: var(--glass-rim-filter);
   -webkit-mask: linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -293,9 +403,31 @@ body,
   z-index: 1;
 }
 
+/* On the small pieces the rim re-samples whatever sits behind it and
+   intensifies it, so its colour tracks the true local backdrop like real
+   glass. */
+.identity::before,
+.site-nav::before,
+.lang-toggle::before,
+.theme-toggle::before {
+  -webkit-backdrop-filter: var(--glass-rim-filter);
+  backdrop-filter: var(--glass-rim-filter);
+}
+
+/* Cards carry a static rim light instead: a live re-sample on every card is
+   a full-card filter pass per frame while scrolling. The live rim returns
+   under a pointer, one card at a time (hover rules below), so touch screens
+   never pay for it. */
+.publication::before,
+.highlight-card::before {
+  background: var(--rim-light);
+  opacity: 0.8;
+}
+
+.identity::after,
+.site-nav::after,
 .lang-toggle::after,
 .theme-toggle::after,
-.site-nav a::after,
 .publication::after,
 .highlight-card::after {
   content: "";
@@ -318,9 +450,10 @@ body,
   z-index: 2;
 }
 
+.identity:hover::after,
+.site-nav:hover::after,
 .lang-toggle:hover::after,
 .theme-toggle:hover::after,
-.site-nav a:hover::after,
 .publication:hover::after,
 .highlight-card:hover::after {
   opacity: 1;
@@ -347,12 +480,11 @@ body,
 }
 
 .highlight-card {
-  background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   border-radius: 26px;
   padding: 1.6rem;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--drop), var(--edge-light);
   border: 2px solid var(--glass-border);
 }
 
@@ -434,15 +566,49 @@ body,
 .publication {
   padding: 1.4rem;
   border-radius: 24px;
-  background: var(--glass-bg);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   border: 2px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--drop), var(--edge-light);
   margin-top: 1.4rem;
 }
 
-/* Per-venue conference background images, layered behind the glass tint */
+/* Light that blooms from the pointer over a card: on hover a soft glow
+   spreads out from the point the pointer is at, dimming as it widens, and
+   then stays centred on the pointer as it moves (--mx/--my are kept up to
+   date by index.html for the edge glow). --bloom is its radius and
+   --bloom-a its strength at the centre. */
+@property --bloom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --bloom-a {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0.7;
+}
+
+/* Glass cards: the pointer bloom, specular bloom and grain over the glass
+   tint. */
+.publication,
+.highlight-card {
+  background-image: radial-gradient(
+      circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, calc(var(--bloom-a) * var(--bloom-k))),
+      rgba(255, 255, 255, calc(var(--bloom-a) * var(--bloom-k) * 0.4))
+        calc(var(--bloom) * 0.45),
+      transparent var(--bloom)
+    ),
+    var(--spec), var(--grain), var(--glass-bg);
+  background-size: auto, auto, 180px 180px, auto;
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+}
+
+/* Per-venue conference background images, layered behind the glass tint.
+   The photo is opaque and painted over the backdrop, so a backdrop blur
+   under it would never be seen; these cards skip that work entirely. */
 .publication[data-venue="imc26"],
 .publication[data-venue="leonet26"],
 .publication[data-venue="pam26"],
@@ -452,11 +618,20 @@ body,
 .publication[data-venue="conext25"],
 .publication[data-venue="mobihoc25"],
 .publication[data-venue="mmnets23"] {
-  background-image: var(--glass-img-tint), var(--pub-bg);
+  background-image: radial-gradient(
+      circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, calc(var(--bloom-a) * var(--bloom-k))),
+      rgba(255, 255, 255, calc(var(--bloom-a) * var(--bloom-k) * 0.4))
+        calc(var(--bloom) * 0.45),
+      transparent var(--bloom)
+    ),
+    var(--spec), var(--glass-img-tint), var(--pub-bg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   min-height: 200px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .publication[data-venue="imc26"] {
@@ -489,6 +664,80 @@ body,
 }
 .publication[data-venue="pam26"] {
   --pub-bg: url("assets/bg/pam26.jpg");
+}
+
+@media (hover: hover) {
+  .publication:hover::before,
+  .highlight-card:hover::before {
+    background: none;
+    opacity: 1;
+    -webkit-backdrop-filter: var(--glass-rim-filter);
+    backdrop-filter: var(--glass-rim-filter);
+  }
+
+  .publication:hover,
+  .highlight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--drop-hover), var(--edge-light);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .publication:hover,
+  .highlight-card:hover {
+    --bloom: 440px;
+    --bloom-a: 0.28;
+    transition: background-color 0.3s ease, border-color 0.3s ease,
+      color 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.35s ease, --bloom 0.9s cubic-bezier(0.16, 0.84, 0.3, 1),
+      --bloom-a 0.9s ease-out;
+  }
+}
+
+/* Scroll-driven entrance, run by the browser's compositor. Uses the
+   individual translate/scale properties so it never fights the hover lift,
+   which uses transform. Browsers without scroll timelines simply show
+   everything in place. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .publication,
+    .highlight-card,
+    .section h2 {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+    scale: 0.975;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* Theme switch: index.html reveals the new theme as a circle growing from
+   the clicked button, with CSS colour transitions frozen meanwhile so the
+   new state is captured fully applied. Language switch: a short crossfade. */
+html.vt-reveal * {
+  transition: none !important;
+}
+
+html.vt-reveal::view-transition-old(root),
+html.vt-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.32s;
 }
 
 .pub-meta {
@@ -628,8 +877,9 @@ body,
   /* Compact sticky header on phones: keep it pinned to the top but let it
      take far less vertical space so more content shows below. */
   .header-inner {
-    padding: 0.55rem 0;
-    gap: 0.5rem 0.75rem;
+    padding: 0.5rem 0.55rem;
+    gap: 0.45rem 0.6rem;
+    border-radius: 24px;
   }
 
   .identity {
@@ -658,10 +908,6 @@ body,
     width: 100%;
     gap: 0.5rem;
     justify-content: space-between;
-  }
-
-  .site-nav {
-    gap: 0.45rem;
   }
 
   .site-nav a {
@@ -709,5 +955,25 @@ body,
   .site-header.is-compact .lang-toggle,
   .site-header.is-compact .theme-toggle {
     display: none;
+  }
+}
+
+/* ===== Liquid glass (html.liquid-glass) =====
+   Engines that render SVG filters inside backdrop-filter (Chromium) get real
+   refraction on top of the glass above: liquid-glass.js builds a
+   displacement map per element (the slab, the pieces on it, each photo
+   card) and applies it through backdrop-filter. The class is set in the
+   <head> before first paint; everywhere else the same glass simply does not
+   bend. */
+
+/* Photo cards under a pointer: a thick refracting bevel replaces the thin
+   live rim, bending the venue photo along the edge. --lg-rim is set on each
+   card by liquid-glass.js; the empty fallback keeps the rule valid should it
+   be missing. */
+@media (hover: hover) {
+  html.liquid-glass .publication[data-venue]:hover::before {
+    padding: 12px;
+    -webkit-backdrop-filter: var(--lg-rim,) saturate(1.45) brightness(1.12);
+    backdrop-filter: var(--lg-rim,) saturate(1.45) brightness(1.12);
   }
 }
