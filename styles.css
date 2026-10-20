@@ -6,6 +6,12 @@
   --muted: #5a5f6a;
   --primary: #6abf8b;
   --primary-dark: #4fa774;
+  /* Green for text and icons. The brand green is too light to read as text
+     on the pale page (2.1:1), so text uses a deeper shade (4.9:1). */
+  --primary-text: #2f7a54;
+  /* Ink on a brand-green fill (the selected language/theme pill): white
+     would be 2.2:1, this is 6.6:1. */
+  --on-primary: #0f2e1d;
   --border: #dbeee2;
   --shadow: 0 12px 32px rgba(28, 33, 45, 0.08);
   --header-bg: rgba(255, 255, 255, 0.42);
@@ -51,8 +57,8 @@
   --glow: rgba(106, 191, 139, 0.9);
   --glass-img-tint: linear-gradient(
     160deg,
-    rgba(255, 255, 255, 0.82),
-    rgba(255, 255, 255, 0.58)
+    rgba(255, 255, 255, 0.84),
+    rgba(255, 255, 255, 0.7)
   );
 }
 
@@ -64,6 +70,8 @@
   --muted: #9db0a5;
   --primary: #74c794;
   --primary-dark: #5cb37e;
+  --primary-text: #74c794;
+  --on-primary: #0f2e1d;
   --border: #25332b;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   --header-bg: rgba(16, 24, 20, 0.5);
@@ -253,7 +261,7 @@ ul {
 }
 
 .site-nav a:hover {
-  color: var(--primary);
+  color: var(--primary-text);
   background-color: rgba(255, 255, 255, 0.5);
 }
 
@@ -291,11 +299,15 @@ ul {
 
 .lang-button.active {
   background: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .lang-button:hover {
-  color: var(--primary-dark);
+  color: var(--primary-text);
+}
+
+.lang-button.active:hover {
+  color: var(--on-primary);
 }
 
 .theme-toggle {
@@ -328,16 +340,13 @@ ul {
 }
 
 .theme-button:hover {
-  color: var(--primary-dark);
+  color: var(--primary-text);
 }
 
-.theme-button.active {
-  background: var(--primary);
-  color: #fff;
-}
-
+.theme-button.active,
 .theme-button.active:hover {
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 body,
@@ -345,8 +354,7 @@ body,
 .lang-toggle,
 .theme-toggle,
 .highlight-card,
-.publication,
-.card {
+.publication {
   transition: background-color 0.3s ease, border-color 0.3s ease,
     color 0.3s ease;
 }
@@ -463,6 +471,12 @@ body,
   padding: 4.5rem 0;
 }
 
+/* About is followed directly by Publications; its own bottom padding on top
+   of the next section's top padding left an oversized gap. */
+#about.section {
+  padding-bottom: 1rem;
+}
+
 .section.alt {
   background: var(--surface);
 }
@@ -486,81 +500,6 @@ body,
   padding: 1.6rem;
   box-shadow: var(--drop), var(--edge-light);
   border: 2px solid var(--glass-border);
-}
-
-.button-row {
-  display: flex;
-  gap: 0.8rem;
-  margin-top: 1.4rem;
-  flex-wrap: wrap;
-}
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.65rem 1.4rem;
-  border-radius: 999px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.button.primary {
-  background: var(--primary);
-  color: #fff;
-}
-
-.button.primary:hover {
-  background: var(--primary-dark);
-}
-
-.button.ghost {
-  border-color: var(--border);
-  color: var(--text);
-  background: #fff;
-}
-
-.button.ghost:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.card-grid {
-  display: grid;
-  gap: 1.6rem;
-  margin-top: 1.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.card {
-  background: var(--surface);
-  border-radius: 18px;
-  padding: 1.5rem;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.card h3 {
-  margin-top: 0;
-}
-
-.tags {
-  list-style: none;
-  display: flex;
-  gap: 0.6rem;
-  padding: 0;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-}
-
-.tags li {
-  background: #e8f7ef;
-  color: #2f7a54;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
 }
 
 .publication {
@@ -609,6 +548,8 @@ body,
 /* Per-venue conference background images, layered behind the glass tint.
    The photo is opaque and painted over the backdrop, so a backdrop blur
    under it would never be seen; these cards skip that work entirely. */
+.publication[data-venue="conext-ho26"],
+.publication[data-venue="conext-ici26"],
 .publication[data-venue="imc26"],
 .publication[data-venue="leonet26"],
 .publication[data-venue="pam26"],
@@ -625,7 +566,7 @@ body,
         calc(var(--bloom) * 0.45),
       transparent var(--bloom)
     ),
-    var(--spec), var(--glass-img-tint), var(--pub-bg);
+    var(--spec), var(--glass-img-tint), var(--pub-bg-ready, none);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -634,36 +575,50 @@ body,
   backdrop-filter: none;
 }
 
+/* index.html adds .bg-ready as a card nears the viewport, so the photos
+   (most of the page weight) download only when they are about to show. */
+.publication.bg-ready {
+  --pub-bg-ready: var(--pub-bg);
+}
+
+.publication[data-venue="conext-ho26"] {
+  --pub-bg: url("assets/bg/conext26.webp");
+  background-position: center bottom;
+}
+.publication[data-venue="conext-ici26"] {
+  --pub-bg: url("assets/bg/conext26.webp");
+  background-position: center 30%;
+}
 .publication[data-venue="imc26"] {
-  --pub-bg: url("assets/bg/imc26.jpg");
+  --pub-bg: url("assets/bg/imc26.webp");
 }
 .publication[data-venue="leonet26"] {
-  --pub-bg: url("assets/bg/leonet26.jpg");
+  --pub-bg: url("assets/bg/leonet26.webp");
 }
 .publication[data-venue="sigmetrics26"] {
-  --pub-bg: url("assets/bg/sigmetrics26.jpg");
+  --pub-bg: url("assets/bg/sigmetrics26.webp");
 }
 .publication[data-venue="imc25"] {
-  --pub-bg: url("assets/bg/imc25.jpg");
+  --pub-bg: url("assets/bg/imc25.webp");
 }
 .publication[data-venue="conext-sa25"] {
-  --pub-bg: url("assets/bg/conext25.jpg");
+  --pub-bg: url("assets/bg/conext25.webp");
   background-position: center bottom;
 }
 .publication[data-venue="conext25"] {
-  --pub-bg: url("assets/bg/conext25.jpg");
+  --pub-bg: url("assets/bg/conext25.webp");
   background-position: center bottom;
 }
 .publication[data-venue="mobihoc25"] {
-  --pub-bg: url("assets/bg/mobihoc25.jpg");
+  --pub-bg: url("assets/bg/mobihoc25.webp");
   background-position: center top;
 }
 .publication[data-venue="mmnets23"] {
-  --pub-bg: url("assets/bg/mmnets23.jpg");
+  --pub-bg: url("assets/bg/mmnets23.webp");
   background-position: center bottom;
 }
 .publication[data-venue="pam26"] {
-  --pub-bg: url("assets/bg/pam26.jpg");
+  --pub-bg: url("assets/bg/pam26.webp");
 }
 
 @media (hover: hover) {
@@ -775,21 +730,16 @@ html.vt-reveal::view-transition-new(root) {
   flex-wrap: wrap;
 }
 
-.pub-links a {
-  color: var(--primary);
+.pub-links a,
+.contact-list a {
+  color: var(--primary-text);
   font-weight: 600;
 }
 
-.text-link {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.split-grid {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  margin-top: 1.6rem;
+.pub-links a:hover,
+.contact-list a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .contact-grid {
@@ -842,11 +792,12 @@ html.vt-reveal::view-transition-new(root) {
 .identity h1 {
   transition: padding 0.25s ease, width 0.25s ease, height 0.25s ease,
     font-size 0.25s ease, margin 0.25s ease, max-height 0.25s ease,
-    opacity 0.2s ease;
+    max-width 0.25s ease, opacity 0.2s ease;
 }
 
 .subtitle {
   max-height: 4rem;
+  max-width: 40rem;
   overflow: hidden;
 }
 
@@ -855,10 +806,15 @@ html.vt-reveal::view-transition-new(root) {
   padding-bottom: 0.4rem;
 }
 
+/* Collapsed, the subtitle gives up its width as well as its height: the
+   name alone is narrow enough for the slab to fit on one row from about
+   930 px wide, instead of staying two rows up to 1180 px. */
 .site-header.is-compact .subtitle {
   max-height: 0;
+  max-width: 0;
   margin: 0;
   opacity: 0;
+  white-space: nowrap;
   pointer-events: none;
 }
 
@@ -874,6 +830,14 @@ html.vt-reveal::view-transition-new(root) {
 }
 
 @media (max-width: 720px) {
+  .section {
+    padding: 3rem 0;
+  }
+
+  #about.section {
+    padding-bottom: 0.5rem;
+  }
+
   /* Compact sticky header on phones: keep it pinned to the top but let it
      take far less vertical space so more content shows below. */
   .header-inner {
